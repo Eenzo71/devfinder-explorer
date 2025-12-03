@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub User Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col items-center py-10 px-4">
+
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-white mb-2"><i class="fab fa-github"></i> DevFinder <span class="text-blue-500 text-sm align-top">PRO</span></h1>
+        <p class="text-slate-400">Encontre perfis, veja históricos e descubra projetos</p>
+    </header>
+    <div class="w-full max-w-2xl bg-slate-900 p-2 rounded-xl shadow-lg flex items-center mb-4 border border-slate-800 focus-within:border-blue-500 transition-colors">
+        <i class="fas fa-search text-blue-500 ml-4 text-xl"></i>
+        <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Digite o username (ex: torvalds)" 
+            class="flex-1 bg-transparent border-none outline-none text-white px-4 py-2 placeholder-slate-600"
+        >
+        <button 
+            id="search-btn" 
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            <span>Buscar</span>
+        </button>
+    </div>
+    <div id="history-section" class="w-full max-w-2xl mb-8 hidden">
+        <p class="text-xs text-slate-500 uppercase font-bold mb-2 ml-1">Recentes:</p>
+        <div id="history-list" class="flex flex-wrap gap-2">
+        </div>
+    </div>
+    <div id="error-msg" class="hidden w-full max-w-2xl bg-red-500/10 border border-red-500/50 text-red-200 p-4 rounded-lg text-center mb-6">
+        <i class="fas fa-exclamation-circle mr-2"></i> <span id="error-text">Usuário não encontrado!</span>
+    </div>
+    <main class="w-full max-w-2xl">
+        <div id="loader" class="hidden flex justify-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+
+        <div id="profile-container" class="hidden fade-in">
+            <div class="bg-slate-900 rounded-xl shadow-xl border border-slate-800 overflow-hidden mb-6 relative">
+                <div class="h-24 bg-gradient-to-r from-blue-900 to-slate-900"></div>
+                <div class="px-6 pb-6 relative">
+                    
+                    <div class="flex flex-col md:flex-row gap-6 -mt-12 items-center md:items-end">
+                        <img id="avatar" src="" alt="Avatar" class="w-32 h-32 rounded-full border-4 border-slate-900 bg-slate-900 shadow-lg">
+                        <div class="flex-1 text-center md:text-left mb-2">
+                            <h2 id="name" class="text-3xl font-bold text-white">Nome</h2>
+                            <a id="username" href="#" target="_blank" class="text-blue-400 hover:text-blue-300">@username</a>
+                            <span id="joined" class="text-slate-500 text-sm ml-2"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p id="bio" class="text-slate-300 mb-4 leading-relaxed italic">Sem bio.</p>
+                            <div class="grid grid-cols-1 gap-2 text-sm text-slate-400">
+                                <div id="location-box" class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5 text-center"></i> <span id="location">Terra</span></div>
+                                <div id="company-box" class="flex items-center gap-2"><i class="fas fa-building w-5 text-center"></i> <span id="company">Free Lancer</span></div>
+                                <div id="blog-box" class="flex items-center gap-2"><i class="fas fa-link w-5 text-center"></i> <a id="blog" href="#" target="_blank" class="hover:text-blue-400 truncate max-w-[200px]">Website</a></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/50 rounded-lg p-4 grid grid-cols-3 gap-2 text-center border border-slate-800 h-fit">
+                            <div>
+                                <span id="repos-count" class="block text-2xl font-bold text-white">0</span>
+                                <span class="text-xs text-slate-500 uppercase">Repos</span>
+                            </div>
+                            <div>
+                                <span id="followers" class="block text-2xl font-bold text-white">0</span>
+                                <span class="text-xs text-slate-500 uppercase">Seguidores</span>
+                            </div>
+                            <div>
+                                <span id="following" class="block text-2xl font-bold text-white">0</span>
+                                <span class="text-xs text-slate-500 uppercase">Seguindo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl shadow-xl border border-slate-800 p-6">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                    <h3 class="text-xl font-bold text-white">
+                        <i class="fas fa-code-branch text-blue-500 mr-2"></i> Últimos Projetos
+                    </h3>
+                    <span class="text-xs bg-blue-900/30 text-blue-300 px-2 py-1 rounded border border-blue-900/50">Top 5 Recentes</span>
+                </div>
+                <div id="repos-list" class="grid grid-cols-1 gap-4">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
