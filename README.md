@@ -6,7 +6,7 @@
 
 > Uma interface moderna, responsiva e elegante para explorar perfis de desenvolvedores e repositórios utilizando a API pública do GitHub.
 
-![Preview do Projeto](./Screen.png)
+![Preview do Projeto](./image.png)
 
 Você pode visualizar o projeto através [deste link]().
 
